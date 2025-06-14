@@ -21,6 +21,7 @@ Or, if you have the Cookie Clicker Mod Manager extension, register a new mod and
 https://sky-noname.github.io/SugarScum/sugarScum.js
 ```
 
+#How it works
 ## Garden Scum
 The Garden has two types of scums: Manul and Auto
 ### Manual Scum
@@ -31,3 +32,5 @@ The Auto Scum menu displays what seeds have a chance of growing next tick. Simpl
 
 ## Lump Scum
 The Lump Scum menu displays what your current sugar lump type is. Here you can select what you'd like your next lump type to be, as well as what yield you want from your current lump. Even if your lump isn't ready to be harvested yet, you can still set up the auto-scum to start scumming as soon as it ripens!
+
+## Notes
