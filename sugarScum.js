@@ -351,7 +351,7 @@ Game.registerMod("sugarScum", {
 											Pressing cancel will also stop an active auto-scum!
 										</div>
 										<a id="autoScumButton" class="option focused" onclick="PlaySound('snd/tick.mp3'); GardenScumUI.AutoScumButton();">
-											Auto-Scum for Selected Seed
+											Start Auto-Scum
 										</a>
 										<a id="cancelScumButton" class="option off" onclick="PlaySound('snd/tick.mp3'); GardenScumUI.CancelScumButton();">
 											Cancel Auto-Scum
