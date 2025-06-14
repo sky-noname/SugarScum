@@ -21,7 +21,7 @@ Or, if you have the Cookie Clicker Mod Manager extension, register a new mod and
 https://sky-noname.github.io/SugarScum/sugarScum.js
 ```
 
-#How it works
+# How it works
 ## Garden Scum
 The Garden has two types of scums: Manul and Auto
 ### Manual Scum
