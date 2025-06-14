@@ -9,7 +9,7 @@ Paste the folowing into your browser's console (can be opened by right-clicking 
 Game.LoadMod('https://sky-noname.github.io/SugarScum/sugarScum.js');
 ```
 
-Or, create a bookmark and save the following as the link. To open, simply click on the bookmark.
+Or, create a bookmarklet and save the following as the link. To load the mod, simply click on the bookmark.
 ```javascript
 javascript: (function () {
     Game.LoadMod('https://sky-noname.github.io/SugarScum/sugarScum.js');
@@ -34,3 +34,9 @@ The Auto Scum menu displays what seeds have a chance of growing next tick. Simpl
 The Lump Scum menu displays what your current sugar lump type is. Here you can select what you'd like your next lump type to be, as well as what yield you want from your current lump. Even if your lump isn't ready to be harvested yet, you can still set up the auto-scum to start scumming as soon as it ripens!
 
 ## Notes
+- This mod requires the Garden to be unlocked in order to load. If you try loading it without one, the mod won't register (meaning you won't get the Third-Party achievement either).
+- To prevent issues with save scumming, when starting an Auto-Scum certain features will be temporarily disabled:
+    - Starting a Lump Scum will disable all Garden Scum options and vice-versa.
+    - If your Sugar Lump is yet to ripe, turning on the Auto-Scum will ready the mod to start scumming as soon as the lump ripens. This means that until then, all Garden Scum features will be disabled unless the scum is cancelled.
+    - The Manual Scum in the garden will also be disabled if the garden is set to Auto-Scum the next tick.
+- The Garden Scum is unavailable if the garden is frozen as it prevents the next tick from rolling over.
