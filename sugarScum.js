@@ -94,11 +94,15 @@ Game.registerMod("sugarScum", {
 					
 					// Seed conflicts with a selected one
 					if(GardenScumUI.conflictingIDs.includes(seedID)) {
+						// Get all the conflicting seed names
+						const conflictingSeed = NextTickMutations.GetMutationConflicts().find(conflict => conflict.plant === seed.key);
+						const seedNames = conflictingSeed.conflictors.map(key => garden.plantsById[keyToIdMap[key]].name).join(', ');
+						
 						description =
 						`This seed has a chance to grow in your garden next tick, but only on one tile.
 						<br>
 						Unfortunately, this seed is impossible to scum for with your current selection, due to the following seed(s) also only being able grow on this one tile:
-						<b>${NextTickMutations.GetMutationConflicts().find(conflict => conflict.plant === garden.plantsById[seedID].key).conflictors.map(key => garden.plantsById[keyToIdMap[key]].name).join(', ')}</b>`
+						<b>${seedNames}</b>`
 					}
 					else {
 						// Brown mold and Crumbspore
@@ -177,10 +181,8 @@ Game.registerMod("sugarScum", {
 			}
 			
 			static UpdateConflictingOptions() {
-				// Re-enable seeds
+				// Re-enable seeds and disable conflicting seeds
 				GardenScumUI.ToggleSeeds(true);
-				
-				// Disable conflicting seeds
 				if(GardenScumUI.conflictingIDs.length > 0) for(const id of GardenScumUI.conflictingIDs) document.getElementById(`possibleSeed-${id}`).style.opacity = 0.25;
 			}
 			
@@ -384,9 +386,7 @@ Game.registerMod("sugarScum", {
 			static dragonMult = 0;
 			
 			// Shorthand to get the time until a new tick
-			static TimeToNextTick() {
-				return (garden.nextStep-Date.now()) / 1000
-			}
+			static TimeToNextTick() => (garden.nextStep-Date.now()) / 1000;
 			
 			static ReloadLastTick() {
 				// Check if save code exists
@@ -413,8 +413,7 @@ Game.registerMod("sugarScum", {
 								break;
 							}
 						}
-						// New seed was found
-						// Move onto next one
+						// New seed was found, move onto next one
 						if (foundNew) break;
 					}
 					// Seed wasn't found
@@ -490,6 +489,8 @@ Game.registerMod("sugarScum", {
 				
 				async function scumLoop() {
 					let attempts = 0;
+
+					// Get the previous plots that have the selected seeds so that the mod doesn't think it's scummed successfully when it sees them
 					let prevPlots = {};
 					for (let seed of GardenScum.selectedSeeds) prevPlots[seed] = GardenScum.PlotsWithPlant(seed);
 					
@@ -549,19 +550,24 @@ Game.registerMod("sugarScum", {
 			static StopAutoScum(reason, attempts) {
 				switch(reason) {
 					case 0:
+						// Successful scum
 						var message = GardenScum.selectedSeeds.length > 1 ? "Your selected seeds have" : garden.plantsById[GardenScum.selectedSeeds[0]].name;
 						Game.Notify("Seed sprouted!", `${message} sprouted after ${attempts} attempts.`, [4, garden.plantsById[GardenScum.selectedSeeds[0]].icon, 'img/gardenPlants.png']);
 						break;
 					case 1:
+						// Parent plants of a desired seed don't exist anymore or the plots that the seed can spawn on is occupied now
 						Game.Notify("Your scum is no longer possible.", "The plants required for your desired mutation are no longer in your garden, or there's simply no space for the plant to grow!",  [3, 35, 'img/gardenPlants.png']);
 						break;
 					case 2:
+						// Cancelled scum
 						Game.Notify("Scum Cancelled.", "");
 						break;
 					case 3:
+						// Garden frozen
 						Game.Notify("Cannot Auto-Scum while the Garden is Frozen.", "");
 						break;
 					case 4:
+						// Plots of the desired seeds have been narrowed down to just one tile, meaning they now conflict and are impossible to scum for
 						Game.Notify("Your scum is no longer possible.", "Something updated in your Garden to cause the selected seeds to only be able to grow on the same tile!", [1,7]);
 						break;
 				}
@@ -584,8 +590,17 @@ Game.registerMod("sugarScum", {
 		class NextTickMutations {
 			// Returns all the neighbours positions of a given plot
 			static GetNeighborPositions(x, y) {
-				const coords = [[x-1, y-1], [x, y-1], [x+1, y-1], [x-1, y], [x+1, y], [x-1, y+1], [x, y+1], [x+1, y+1]];
-				return coords.filter(([nx, ny]) => nx >= 0 && ny >= 0 && nx < garden.plot[0].length && ny < garden.plot.length && garden.isTileUnlocked(nx, ny));
+				// Surrounding plots
+				const coords = [[x-1, y-1], [x, y-1], [x+1, y-1],
+						[x-1, y], [x+1, y],
+						[x-1, y+1], [x, y+1], [x+1, y+1]];
+				// Filter out any plots that are off the garden or unlocked
+				return coords.filter(([nx, ny]) => 
+					nx >= 0 && 
+					ny >= 0 && 
+					nx < garden.plot[0].length && 
+					ny < garden.plot.length && 
+					garden.isTileUnlocked(nx, ny));
 			}
 			
 			// Given a plot, returns all neighbouring plants and all neighbouring mature plants
@@ -601,9 +616,8 @@ Game.registerMod("sugarScum", {
 						const key = garden.plantsById[id - 1].key
 						all[key] = (all[key] || 0) + 1;
 						
-						// Only add if mature
-						const age = tile.length > 1 ? tile[1] : 0;
-						if (age >= garden.plantsById[id - 1].mature) mature[key] = (mature[key] || 0) + 1;
+						// Mature plants
+						if (tile[1] >= garden.plantsById[id - 1].mature) mature[key] = (mature[key] || 0) + 1;
 					}
 				}
 				return { all, mature };
@@ -611,20 +625,23 @@ Game.registerMod("sugarScum", {
 			
 			// Checks if the plot is in range of a Tidygrass or Everdaisy
 			static IsTileTidy(x, y) {
+				// Loop through garden
 				for (let ny = 0; ny < garden.plot.length; ny++) {
 					for (let nx = 0; nx < garden.plot[0].length; nx++) {
 						const tile = garden.plot[ny][nx];
 						const id = tile[0];
-						
+
+						// Tile occupied
 						if (id > 0) {
 							const plant = garden.plantsById[id - 1];
-							if (!plant || !plant.key) continue;
-							
+
+							// Check if the plant is Tidygrass or Everdaisy
 							let range = 0;
 							if (plant.key === 'tidygrass') range = 2;
 							else if (plant.key === 'everdaisy') range = 1;
 							else continue;
-							
+
+							// Check if the plot is in range
 							const dx = Math.abs(x - nx);
 							const dy = Math.abs(y - ny);
 							if (dx <= range && dy <= range) return true;
@@ -940,16 +957,14 @@ Game.registerMod("sugarScum", {
 				}
 			}
 			
-			// Increase yield button
-			// Moves forward in the yield array
+			// Increase yield button, moves forward in the yield array
 			static IncreaseYield() {
 				if(LumpScumUI.increaseButton.className === 'option off') return;
 				LumpScumUI.yieldIndex = (LumpScumUI.yieldIndex + 1) % LumpScumUI.possibleYield.length;
 				LumpScumUI.UpdateYield();
 			}
 			
-			// Decrease yield button
-			// Moves backwards in the yield array
+			// Decrease yield button, moves backwards in the yield array
 			static DecreaseYield() {
 				if(LumpScumUI.decreaseButton.className === 'option off') return;
 				LumpScumUI.yieldIndex = (LumpScumUI.yieldIndex - 1 + LumpScumUI.possibleYield.length) % LumpScumUI.possibleYield.length;
@@ -1147,7 +1162,7 @@ Game.registerMod("sugarScum", {
 								<div id="lumpYieldLabel" style="margin-bottom: 10px; font-variant: none; font-weight: normal;">Your current lump may yield a number of lumps within this range:</div>
 								<div id="lumpYieldOption" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;">
 									<a id="decreaseYield" class="option focused" style="margin: 0;" onclick="PlaySound('snd/tick.mp3'); LumpScumUI.DecreaseYield();"><</a>
-									<div id="possibleYield" style="font-variant: none; font-weight: heavy; width: 30px;"></div>
+									<div id="possibleYield" style="color: white; font-variant: none; font-weight: heavy; width: 30px;"></div>
 									<a id="increaseYield" class="option focused" style="margin: 0;" onclick="PlaySound('snd/tick.mp3'); LumpScumUI.IncreaseYield();">></a>
 								</div>
 								<div id="yieldChance" style="font-variant: none; font-weight: normal;"></div>
@@ -1201,7 +1216,6 @@ Game.registerMod("sugarScum", {
 				async function scumLoop() {
 					let attempts = 0;
 					let initialLumps = Game.lumps;
-					let success = false;
 					LumpScum.gameSave = Game.WriteSave(1);
 					
 					while (LumpScum.scumming) {
@@ -1279,22 +1293,27 @@ Game.registerMod("sugarScum", {
 			static StopAutoScum(reason, attempts) {
 				switch(reason) {
 					case 0:
+						// Successful scum
 						Game.Notify("Lump found!", `A ${lumpNames[Game.lumpCurrentType]} Sugar Lump has started coalescing after ${attempts} attempts.`, LumpScumUI.GetLumpIcon(Game.lumpCurrentType, 1));
 						break;
 					case 1:
+						// Lump fell
 						Game.Notify("Too Late.", "It took so long to scum your lump that it ended up falling.", [23,14]);
 						break;
 					case 2:
+						// Cancelled scum
 						Game.Notify("Scum Cancelled.", "");
 						if(LumpScum.scumming) Game.LoadSave(LumpScum.gameSave);
 						break;
 					case 3:
+						// Desired yield was 0 but the lump ripened and isn't Meaty
 						Game.Notify("Scum no longer possible.", "You selected a desired yield of 0, but your Sugar Lump ripened and can no longer yield 0 lumps!", [23,14]);
 						LumpScumUI.yieldIndex = 0;
 						LumpScumUI.UpdateYield();
 						Game.LoadSave(LumpScum.gameSave);
 						break;
 					case 4:
+						// Desired lump was Meaty but the Grandmapocalypse was stopped
 						Game.Notify("Scum no longer possible.", "You selected a Meaty Sugar Lump, but the Grandmapocalypse is no longer active!", [10,9]);
 						break;
 				}
