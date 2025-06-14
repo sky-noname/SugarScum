@@ -1364,12 +1364,6 @@ Game.registerMod("sugarScum", {
 		}
 
 		// ========== INITIALIZATION ==========
-
-		window.GardenScumUI = GardenScumUI;
-		window.GardenScum = GardenScum;
-		window.NextTickMutations = NextTickMutations;
-		window.LumpScumUI = LumpScumUI;
-		window.LumpScum = LumpScum;
 		
 		// Garden variables
 		const garden = Game.Objects.Farm.minigame;
@@ -1378,26 +1372,21 @@ Game.registerMod("sugarScum", {
 		// Lump variables
 		const lumpNames = ['Normal', 'Bifurcated', 'Golden', 'Meaty', 'Caramelized'];
 		
-		// Garden init
-		if(Game.canLumps()) {
-			if(garden) {
-				Object.keys(Game.Objects.Farm.minigame.plants).forEach((key, i) => { keyToIdMap[key] = i; });
-				GardenScumUI.Build();
-				GardenScumUI.UpdateSaveCode();
-				GardenScumUI.DisplaySeeds();
-				GardenScumUI.UpdateScumLabel();
-				setInterval(GardenScum.CheckGarden, 100);
-			}
-			else Game.Prompt(`
-				<div class="name">Note</div>
-				<div class="line"></div>
-				<div style="padding: 1em;">
-					You don't have a Garden yet!
-					<br>
-					Sugar Scum is still able to work, but only for your lumps.
-					<br>
-					If you purchase a Garden while Sugar Scum is loaded, please reload the mod.
-				</div>`,['Okay']);
+		// Only load if the player has the garden
+		if(garden) {
+			window.GardenScumUI = GardenScumUI;
+			window.GardenScum = GardenScum;
+			window.NextTickMutations = NextTickMutations;
+			window.LumpScumUI = LumpScumUI;
+			window.LumpScum = LumpScum;
+			
+			// Garden init
+			Object.keys(Game.Objects.Farm.minigame.plants).forEach((key, i) => { keyToIdMap[key] = i; });
+			GardenScumUI.Build();
+			GardenScumUI.UpdateSaveCode();
+			GardenScumUI.DisplaySeeds();
+			GardenScumUI.UpdateScumLabel();
+			setInterval(GardenScum.CheckGarden, 100);
 			
 			// Lump init
 			LumpScumUI.Build();
@@ -1409,6 +1398,6 @@ Game.registerMod("sugarScum", {
 			
 			Game.Notify("Sugar Scum loaded!", "Let there be Lumps.", [25,15]);
 		}
-		else Game.Notify("Sugar Scum failed to load.", "You can't coalesce Sugar Lumps yet!", [17,5]);
+		else Game.Notify("Sugar Scum failed to load.", "You don't have a garden yet!", [17,5]);
 	}
 });
