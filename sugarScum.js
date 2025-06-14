@@ -386,7 +386,7 @@ Game.registerMod("sugarScum", {
 			static dragonMult = 0;
 			
 			// Shorthand to get the time until a new tick
-			static TimeToNextTick() => (garden.nextStep-Date.now()) / 1000;
+			static TimeToNextTick = () => (garden.nextStep-Date.now()) / 1000;
 			
 			static ReloadLastTick() {
 				// Check if save code exists
@@ -998,9 +998,7 @@ Game.registerMod("sugarScum", {
 			}
 			
 			// Shorthand to deselect all lumps
-			static DeselectLumps() {
-				document.querySelectorAll('#possibleLumps .gardenSeed').forEach(lump => { lump.className = 'gardenSeed'; });
-			}
+			static DeselectLumps = () => document.querySelectorAll('#possibleLumps .gardenSeed').forEach(lump => { lump.className = 'gardenSeed'; });
 			
 			// Tooltip for the lump selection
 			static LumpTooltip(el, lumpID, chance) {
