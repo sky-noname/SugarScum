@@ -1176,7 +1176,7 @@ if(Game.Objects.Farm.minigame) {
 									</div>
 									<div id="scumButtons">
 										<a id="lumpScumButton" class="option focused" style="margin: 0;" onclick="PlaySound('snd/tick.mp3'); LumpScumUI.StartScumButton();">Start Auto-Scum</a>
-										<a id="cancelLumpScumButton" class="option off" style="margin: 0;" onclick="PlaySound('snd/tick.mp3'); LumpScumUI.CancelScumButton()">Cancel Scum</a>
+										<a id="cancelLumpScumButton" class="option off" style="margin: 0;" onclick="PlaySound('snd/tick.mp3'); LumpScumUI.CancelScumButton()">Cancel Auto-Scum</a>
 									</div>
 								</div>
 							</div>
