@@ -4,7 +4,7 @@ A mod to automate save scumming for Garden Plants and Sugar Lumps
 # How to use
 To import the mod, either:
 
-Paste the folowing into your browser's console (can be opened by right-clicking and selecting "Inspect Element).
+Paste the folowing into your browser's console (can be opened by right-clicking and selecting "Inspect Element").
 ```javascript
 Game.LoadMod('https://sky-noname.github.io/SugarScum/sugarScum.js');
 ```
