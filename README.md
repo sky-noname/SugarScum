@@ -48,3 +48,6 @@ The Lump Scum menu displays what your current sugar lump type is. Here you can s
     - If your Sugar Lump is yet to ripe, turning on the Auto-Scum will ready the mod to start scumming as soon as the lump ripens. This means that until then, all Garden Scum features will be disabled unless the scum is cancelled.
     - The Manual Scum in the garden will also be disabled if the garden is set to Auto-Scum the next tick.
 - The Garden Scum is unavailable if the garden is frozen as it prevents the next tick from rolling over.
+
+## Conflicts
+Currently the mod is known to conflict with Cookie Monster and Auto Cookie when trying to reload the game. For now, the current fix is to simply have Cookie Monster and Auto Cookie not loaded when save scumming using SugarScum.
